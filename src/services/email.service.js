@@ -25,3 +25,18 @@ export const sendEmail = async (email, receipt) => {
     console.log(error);
   }
 };
+
+export const sendEmailRecovery = async (email, token) => {
+  const mailOptions = {
+    from: process.env.APP_MAIL_SENDER,
+    to: email,
+    subject: "Password Recovery",
+    text: `Click on the link to reset your password: ${token}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.log(error);
+  }
+}

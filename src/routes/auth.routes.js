@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import { passportError, authorization } from "../utils/messageError.js";
-import { getUsers, loginValidation } from "../controllers/auth.controller.js";
+import { getUsers, loginValidation, recoverPassword, resetPassword } from "../controllers/auth.controller.js";
 
 const routerAuth = Router();
 
@@ -59,5 +59,10 @@ routerAuth.get(
     res.send({ message: `Welcome ${username}` });
   }
 );
+
+// password recovery
+routerAuth.get("/password-recovery", recoverPassword);
+
+routerAuth.post("/reset-password", resetPassword);
 
 export default routerAuth;

@@ -1,7 +1,9 @@
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { validatePassword } from "../utils/bcrypt.js";
+import { createHash, validatePassword } from "../utils/bcrypt.js";
+import { generateToken, verifyToken } from "../utils/jwt.js";
 import { UserMongo } from "../dao/MongoDB/models/User.js";
+import { sendEmailRecovery } from "../services/email.service.js";
 
 export const managerUser = new UserMongo();
 
@@ -45,7 +47,7 @@ const loginUser = async (req, res) => {
   if (!validatePassword(password, userBDD.password)) {
     return res.status(401).send("Invalid password");
   }
-  const token = generateToken(userBDD._id);
+  const token = generateToken({ user: { id: userBDD._id } });
   setCookie(res, token);
   return res.status(200).json({ token });
 };
@@ -61,16 +63,61 @@ const validateToken = async (req, res, next) => {
   }
 };
 
-const generateToken = (userId) => {
-  return jwt.sign({ user: { id: userId } }, process.env.PRIVATE_KEY_JWT);
-};
+// revisar esto 
+// const generateToken = (userId) => {
+//   return jwt.sign({ user: { id: userId } }, process.env.PRIVATE_KEY_JWT);
+// };
 
 const setCookie = (res, token) => {
   res.cookie("jwt", token, { httpOnly: true });
 };
 
-
-export const getUserEmail = async (userId)=> {
+export const getUserEmail = async (userId) => {
   const user = await managerUser.getElementById(userId);
   return user.email;
-}
+};
+
+// recover password, only withing one hour
+export const recoverPassword = async (req, res) => {
+  const { email } = req.body;
+  const userBDD = await managerUser.getUserByEmail(email);
+  if (!userBDD) {
+    return res.status(401).send("User not found");
+  }
+  const token = generateToken({ userBDD }, "1h");
+  const link = `http://localhost:3000/auth/reset-password?token=${token}`;
+  // send email with link
+  await sendEmailRecovery(email, link);
+  res.send({
+    status: "success",
+    message: "An email has been sent to recover your password",
+  });
+};
+
+// reset password
+export const resetPassword = async (req, res) => {
+  const { token } = req.query;
+  const { password } = req.body;
+  try {
+    const decodedToken = verifyToken(token);
+    const userBDD = await managerUser.getElementById(decodedToken.userBDD._id);
+    if (!userBDD) {
+      return res.status(401).send("User not found");
+    }
+    const newPassword = createHash(password);
+    if (validatePassword(password, userBDD.password)) {
+      return res.status(401).send("New password must be different");
+    }
+    userBDD.password = newPassword;
+    await managerUser.updateElement(userBDD._id, userBDD);
+
+    //const expirationTime = new Date(decodedToken.exp * 1000); // Convert expiration timestamp to Date object
+    res.send({
+      status: "success",
+      message: "Password updated",
+      //expiration: expirationTime,
+    });
+  } catch (error) {
+    res.status(400).send("Invalid or expired token");
+  }
+};
