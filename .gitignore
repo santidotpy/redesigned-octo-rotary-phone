@@ -1,0 +1,5 @@
+node_modules
+.env
+bla.txt
+exceptions.log
+entrega_session/src/middlewares/index.js
