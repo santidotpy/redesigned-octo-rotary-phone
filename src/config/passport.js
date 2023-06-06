@@ -46,8 +46,9 @@ const initializePassport = (passport) => {
     const id_cart = cart[0]._id.toString();
 
     const { first_name, last_name, email, age } = req.body;
-    let { isadmin } = req.body;
+    let { isadmin, isSeller } = req.body;
     isadmin = isadmin ? isadmin : false;
+    isSeller = isSeller ? isSeller : false;
     try {
       const user = await managerUser.getUserByEmail(mail);
       if (user) {
@@ -64,6 +65,7 @@ const initializePassport = (passport) => {
           password: passwordHash,
           age,
           isadmin,
+          isSeller,
           id_cart,
         },
       ]);

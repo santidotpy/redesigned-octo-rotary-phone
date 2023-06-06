@@ -1,7 +1,13 @@
 import { Router } from "express";
 import passport from "passport";
-import { passportError, authorization } from "../utils/messageError.js";
-import { getUsers, loginValidation, recoverPassword, resetPassword } from "../controllers/auth.controller.js";
+import { passportError, authorization, authorizationUser } from "../utils/messageError.js";
+import {
+  getUsers,
+  loginValidation,
+  recoverPassword,
+  resetPassword,
+  toSellOrNotToSell
+} from "../controllers/auth.controller.js";
 
 const routerAuth = Router();
 
@@ -65,4 +71,10 @@ routerAuth.get("/password-recovery", recoverPassword);
 
 routerAuth.post("/reset-password", resetPassword);
 
+routerAuth.get(
+  "/users/is-seller",
+  passportError("jwt"),
+  authorizationUser(),
+  toSellOrNotToSell
+);
 export default routerAuth;

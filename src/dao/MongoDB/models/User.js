@@ -25,6 +25,12 @@ const schema = new Schema({
     required: false,
     default: false,
   },
+  // usuario premium
+  isSeller: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   password: {
     type: String,
     required: true,

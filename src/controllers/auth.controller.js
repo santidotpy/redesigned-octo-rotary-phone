@@ -63,7 +63,7 @@ const validateToken = async (req, res, next) => {
   }
 };
 
-// revisar esto 
+// revisar esto
 // const generateToken = (userId) => {
 //   return jwt.sign({ user: { id: userId } }, process.env.PRIVATE_KEY_JWT);
 // };
@@ -118,6 +118,31 @@ export const resetPassword = async (req, res) => {
       //expiration: expirationTime,
     });
   } catch (error) {
-    res.status(400).send("Invalid or expired token");
+    res
+      .status(400)
+      .send(
+        "Invalid or expired token. Please go to /password-recovery to recover your password."
+      );
+  }
+};
+
+export const toSellOrNotToSell = async (req, res) => {
+  const { user_id } = req.query;
+  const user = await managerUser.getElementById(user_id);
+  if (!user) {
+    return res.status(401).send("User not found");
+  }
+  
+  if (user._id.toString() === req.user._id.toString() || req.user.isadmin) {
+    user.isSeller = !user.isSeller;
+    await managerUser.updateElement(user_id, user);
+    res.send({
+      status: "success",
+      message: `User updated successfully. User ${user.first_name} seller status is now ${user.isSeller}`,
+    });
+  } else {
+    return res
+      .status(401)
+      .send("You are not authorized to change this user's seller status");
   }
 };

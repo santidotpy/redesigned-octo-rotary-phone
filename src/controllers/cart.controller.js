@@ -6,6 +6,7 @@ import {
   getPrice,
   buyProducts,
   getProductData,
+  getOwner,
 } from "./products.controller.js";
 import { getUserEmail } from "./auth.controller.js";
 import { generateReceipt } from "../services/receipt.service.js";
@@ -65,6 +66,12 @@ export const addProductToCart = async (req, res) => {
   const { id_prod, quantity } = req.body;
 
   try {
+    const cartOwner = await getOwner(id_prod);
+    if(cartOwner == req.user.email){
+      return res.status(400).json({
+        message: "You can't add your own product to cart",
+      });
+    }
     const respuesta = await managerCart.addProductCart(
       id_cart,
       id_prod,

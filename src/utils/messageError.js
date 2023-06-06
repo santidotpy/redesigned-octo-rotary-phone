@@ -47,3 +47,20 @@ export const authorizationUser = () => { // Middleware para validar que el usuar
     next();
   };
 }
+
+
+// check is user isSeller
+export const authorizationAdminOrSeller = () => {
+  return async (req, res, next) => {
+    if (!req.user) {
+      //No hay un usuario
+      return res.status(401).send({ error: "Unauthorized user" });
+    }
+    if (!req.user.isSeller && !req.user.isadmin) {
+      return res
+        .status(403)
+        .send({ error: "You do not have permission to access" });
+    }
+    next();
+  };
+}

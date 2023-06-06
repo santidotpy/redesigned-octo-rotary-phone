@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { passportError, authorization } from "../utils/messageError.js";
+import { passportError, authorization, authorizationAdminOrSeller } from "../utils/messageError.js";
 import {
   getProducts,
   addProduct,
@@ -21,7 +21,8 @@ routerProd.get("/products-json", getProductsJSON);
 routerProd.post(
   "/products",
   passportError("jwt"),
-  authorization(),
+  //authorization(),
+  authorizationAdminOrSeller(),
   validateProduct,
   addProduct
 );
@@ -30,7 +31,7 @@ routerProd.post(
 routerProd.delete(
   "/products",
   passportError("jwt"),
-  authorization(),
+  authorizationAdminOrSeller(),
   deleteProduct
 );
 
@@ -38,7 +39,7 @@ routerProd.delete(
 routerProd.put(
   "/products",
   passportError("jwt"),
-  authorization(),
+  authorizationAdminOrSeller(),
   updateProduct
 );
 

@@ -57,6 +57,9 @@ export const addProduct = async (req, res) => {
     category,
   } = req.body;
   try {
+    // if user is admin owner = 'admin' else owner is its email
+    const owner = req.user.role === "admin" ? "admin" : req.user.email;
+
     const newProduct = await managerProduct.addElements({
       productName,
       description,
@@ -66,6 +69,7 @@ export const addProduct = async (req, res) => {
       stock,
       status,
       category,
+      owner,
     });
     res.status(200).json(newProduct);
   } catch (error) {
@@ -79,6 +83,17 @@ export const addProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   const { id } = req.query;
   try {
+    const product = await managerProduct.getElementById(id);
+    if (!product) {
+      return res.status(404).json({
+        message: `Product ${id} not found`,
+      });
+    }
+    if (product.owner !== req.user.email && !req.user.isadmin) {
+      return res.status(401).json({
+        message: `You are not authorized to delete this product`,
+      });
+    }
     await managerProduct.deleteElement(id);
     res.status(200).json({
       message: `Product ${id} deleted successfully`,
@@ -104,6 +119,18 @@ export const updateProduct = async (req, res) => {
     category,
   } = req.body;
   try {
+    const checkProduct = await managerProduct.getElementById(id);
+    if (!checkProduct) {
+      return res.status(404).json({
+        message: `Product ${id} not found`,
+      });
+    }
+    if (checkProduct.owner !== req.user.email && !req.user.isadmin) {
+      return res.status(401).json({
+        message: `You are not authorized to update this product`,
+      });
+    }
+
     await managerProduct.updateElement(id, {
       productName,
       description,
@@ -207,6 +234,15 @@ export const mockingProducts = async (req, res) => {
   }
 };
 
+
+export const getOwner = async (id) => {
+  try {
+    const product = await managerProduct.getElementById(id);
+    return product.owner;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 // const info = [
 //   {
 //     id_prod: "64532269974dca345b10207a",

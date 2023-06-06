@@ -9,6 +9,8 @@ const schema = {
   stock: { type: Number, required: true },
   status: { type: Boolean, required: false, max: 10, default: false },
   category: { type: String, required: true, max: 25 },
+  owner: { type: String, required: false, default: "admin" },
+  //timestamp: { type: Date, default: Date.now },
 };
 
 export class ProductMongo extends mongoManager {
