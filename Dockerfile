@@ -1,7 +1,7 @@
 FROM node:18.16
 
 # Create app directory
-WORKDIR /literate-octo-memory
+WORKDIR /redesigned-octo-rotary-phone
 
 # Bundle app source
 COPY src ./src
