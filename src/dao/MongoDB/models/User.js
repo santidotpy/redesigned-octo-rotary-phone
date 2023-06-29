@@ -20,6 +20,19 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
+  documents: [{
+    name: {
+      type: String,
+    },
+    reference: {
+      type: String,
+    }
+  }],
+  last_connection: {
+    type: Date,
+    required: false,
+    default: Date.now(),
+  },
   isadmin: {
     type: Boolean,
     required: false,
