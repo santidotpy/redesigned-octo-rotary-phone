@@ -4,6 +4,7 @@ import { createHash, validatePassword } from "../utils/bcrypt.js";
 import { generateToken, verifyToken } from "../utils/jwt.js";
 import { UserMongo } from "../dao/MongoDB/models/User.js";
 import { sendEmailRecovery } from "../services/email.service.js";
+import { tr } from "@faker-js/faker";
 
 export const managerUser = new UserMongo();
 
@@ -47,6 +48,10 @@ const loginUser = async (req, res) => {
   if (!validatePassword(password, userBDD.password)) {
     return res.status(401).send("Invalid password");
   }
+  // update last login
+  // userBDD.last_login = new Date();
+  userBDD.last_connection = new Date();
+  await managerUser.updateElement(userBDD._id, userBDD);
   const token = generateToken({ user: { id: userBDD._id } });
   setCookie(res, token);
   return res.status(200).json({ token });
@@ -60,6 +65,24 @@ const validateToken = async (req, res, next) => {
     next();
   } catch (err) {
     return res.status(401).send("Invalid token");
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) {
+      return res.status(401).send("Please login first");
+    }
+    const decodedToken = jwt.verify(token, process.env.PRIVATE_KEY_JWT);
+    const userBDD = await managerUser.getElementById(decodedToken.user.id);
+    userBDD.last_connection = new Date();
+    await managerUser.updateElement(userBDD._id, userBDD);
+    req.session.destroy();
+    res.clearCookie("jwt");
+    res.send({ status: "success", message: "User logged out successfully" });
+  } catch (error) {
+    res.status(500).send(`An error occurred in Session: ${error}`);
   }
 };
 

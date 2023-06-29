@@ -4,6 +4,7 @@ import { passportError, authorization, authorizationUser } from "../utils/messag
 import {
   getUsers,
   loginValidation,
+  logout,
   recoverPassword,
   resetPassword,
   toSellOrNotToSell
@@ -33,17 +34,18 @@ routerAuth.get("/login", (req, res) => {
 
 routerAuth.post("/login", loginValidation);
 
-routerAuth.get("/logout", (req, res) => {
-  if (req.session.login) {
-    req.session.destroy(() => {
-      console.log("Session destroyed");
-      res.redirect("../");
-    });
-    return;
-  }
+routerAuth.get("/logout", logout);
+// (req, res) => {
+  // if (req.session.login) {
+  //   req.session.destroy(() => {
+  //     console.log("Session destroyed");
+  //     res.redirect("../");
+  //   });
+  //   return;
+  // }
 
-  res.redirect("../");
-});
+  // res.redirect("../");
+// });
 
 routerAuth.get("/users", getUsers);
 
