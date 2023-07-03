@@ -169,3 +169,31 @@ export const toSellOrNotToSell = async (req, res) => {
       .send("You are not authorized to change this user's seller status");
   }
 };
+
+export const uploadDocument = async (req, res) => {
+  const { user_id} = req.query;
+  const { files } = req;
+  const newFiles = files.map((file) => {
+    return {
+      name: file.filename,
+      reference: file.path.split('/src')[1],
+    };
+  });
+  const user = await managerUser.getElementById(user_id);
+  if (!user) {
+    return res.status(401).send("User not found");
+  }
+  try {
+    user.documents.push(...newFiles);
+    await managerUser.updateElement(user_id, user);
+    const {_id, documents} = await managerUser.getElementById(user_id);
+    return res.send({
+      status: "success",
+      message: `Files successfully uploaded`,
+      id: _id,
+      documents: documents,
+    });
+  } catch (error) {
+    return res.status(500).send("Error uploading documents");
+  }
+}
