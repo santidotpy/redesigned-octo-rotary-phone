@@ -4,5 +4,5 @@ bla.txt
 exceptions.log
 entrega_session/src/middlewares/index.js
 
-# src/public/uploads/products/*
-# src/public/uploads/profiles/*
+src/public/uploads/products/*
+src/public/uploads/profiles/*
