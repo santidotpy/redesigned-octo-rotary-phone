@@ -1,5 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
+import {upload} from "../middlewares/images.js";
 import { passportError, authorization, authorizationUser } from "../utils/messageError.js";
 import {
   getUsers,
@@ -7,7 +8,8 @@ import {
   logout,
   recoverPassword,
   resetPassword,
-  toSellOrNotToSell
+  toSellOrNotToSell,
+  uploadDocument,
 } from "../controllers/auth.controller.js";
 
 const routerAuth = Router();
@@ -48,6 +50,11 @@ routerAuth.get("/logout", logout);
 // });
 
 routerAuth.get("/users", getUsers);
+
+routerAuth.post("/users/documents/profile", upload.array("profile"), uploadDocument);
+
+routerAuth.post("/users/documents/product", upload.array("product"), uploadDocument);
+
 
 routerAuth.get(
   "/testJWT",
