@@ -22,10 +22,10 @@ const schema = new Schema({
   },
   documents: [{
     name: {
-      type: String,
+      type: String, // doc name
     },
     reference: {
-      type: String,
+      type: String, // link to doc
     }
   }],
   last_connection: {
